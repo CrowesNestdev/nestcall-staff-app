@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'">
+<title>Nest Call - call waiting</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#fff;font:14px/1.4 "Segoe UI",system-ui,sans-serif;color:#111827;overflow:hidden}
+  #app{border:3px solid #dc2626;display:flex;flex-direction:column}
+  .head{background:#dc2626;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;-webkit-app-region:drag}
+  .head h1{margin:0;font-size:16px;flex:1}
+  .head button{-webkit-app-region:no-drag;background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:6px;padding:4px 10px;font:inherit;cursor:pointer}
+  .offline{background:#fef3c7;color:#92400e;padding:8px 14px;font-weight:600}
+  .call{padding:14px;border-top:1px solid #eee}
+  .call:first-of-type{border-top:0}
+  .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .table{font-size:28px;font-weight:700}
+  .req{font-size:16px;font-weight:600;color:#1f6feb}
+  .wait{margin-left:auto;font-variant-numeric:tabular-nums;color:#6b7280}
+  .site{color:#6b7280;font-size:12px}
+  .note{margin:8px 0 0;padding:8px 10px;background:#f3f4f6;border-radius:8px;white-space:pre-wrap;word-break:break-word}
+  .loc{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px}
+  .loc.verified{background:#dcfce7;color:#166534}
+  .loc.unverified{background:#fef3c7;color:#92400e}
+  .loc.outside{background:#fee2e2;color:#991b1b}
+  .btns{display:flex;gap:8px;margin-top:12px}
+  button.accept{flex:2;background:#16a34a;color:#fff;border:0;border-radius:10px;padding:14px;font:inherit;font-size:17px;font-weight:700;cursor:pointer}
+  button.false{flex:1;background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:14px 8px;font:inherit;cursor:pointer}
+  button:disabled{opacity:.55;cursor:default}
+  .fa{margin-top:10px;padding:10px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px}
+  .fa p{margin:0 0 8px;font-weight:600}
+  .fa .opts{display:flex;flex-wrap:wrap;gap:6px}
+  .fa .opts button{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:6px 10px;font:inherit;cursor:pointer}
+  .fa label{display:block;margin-top:8px;font-size:13px}
+  .err{margin-top:8px;color:#991b1b;font-weight:600}
+  .more{padding:10px 14px;color:#6b7280;border-top:1px solid #eee}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="alert.js"></script>
+</body>
+</html>
