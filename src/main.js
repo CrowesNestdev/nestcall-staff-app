@@ -66,6 +66,7 @@ const sessionStorageAdapter = {
 let supabase = null;
 let user = null, noAccess = false;
 let sites = [], tables = [], brandLabels = {};
+let myTenantIds = [];
 const calls = new Map();        // pending calls from the server, by id
 const testCalls = new Map();    // local test alerts
 const alertedAt = new Map();    // id -> last time we made noise for it
@@ -211,9 +212,16 @@ function friendlyAuthError(msg) {
 async function onSignedIn(u, accessToken) {
   user = u; noAccess = false;
   if (accessToken) supabase.realtime.setAuth(accessToken);
-  const { data, error } = await supabase.from("sites").select("id,name,tenant_id").order("name");
-  if (error) { console.error("load sites failed", error); sites = []; }
-  else sites = data || [];
+  // Only the businesses this person is a member of. (Row-level security alone isn't enough: a platform
+  // administrator is allowed to read every site, but must still only see their own here.)
+  const { data: mem, error: memErr } = await supabase.from("tenant_members").select("tenant_id").eq("user_id", u.id);
+  myTenantIds = memErr ? [] : [...new Set((mem || []).map((m) => m.tenant_id))];
+  if (!myTenantIds.length) sites = [];
+  else {
+    const { data, error } = await supabase.from("sites").select("id,name,tenant_id").in("tenant_id", myTenantIds).order("name");
+    if (error) { console.error("load sites failed", error); sites = []; }
+    else sites = data || [];
+  }
   if (!sites.length) { noAccess = true; emitState(); return; }
   settings.siteIds = settings.siteIds.filter((id) => sites.some((s) => s.id === id));
   if (!settings.siteIds.length && sites.length === 1) settings.siteIds = [sites[0].id];
@@ -226,7 +234,7 @@ async function signOut() {
   const hadUser = user;
   user = null;
   await stopMonitoring();
-  calls.clear(); testCalls.clear(); alertedAt.clear(); tables = []; sites = []; noAccess = false;
+  calls.clear(); testCalls.clear(); alertedAt.clear(); tables = []; sites = []; myTenantIds = []; settings.siteIds = []; saveSettings(); noAccess = false;
   if (hadUser) { try { await supabase.auth.signOut(); } catch { /* ignore */ } }
   refreshAlert();
   showMain();
@@ -234,7 +242,7 @@ async function signOut() {
 
 // ---------------------------------------------------------------- monitoring
 async function loadBrandLabels() {
-  const { data } = await supabase.from("brand_profiles").select("copy");
+  const { data } = myTenantIds.length ? await supabase.from("brand_profiles").select("copy").in("tenant_id", myTenantIds) : { data: [] };
   brandLabels = {};
   for (const b of data || []) {
     for (const r of (b.copy && b.copy.requests) || []) {

@@ -21,6 +21,10 @@ const disabledText = (t) => t.disabled_until === "infinity" ? "Disabled until tu
   : "Disabled until " + new Date(t.disabled_until).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" });
 
 // ----------------------------------------------------------------- views
+const brandBlock = () => h("div", { class: "brand-big" }, h("img", { class: "brand-full", src: "logo-full.png", alt: "Nest Call", width: "120", height: "169" }));
+const brandMark = () => h("div", { class: "mark" }, h("img", { src: "logo.png", alt: "", width: "34", height: "34" }),
+  h("span", { class: "mk-t" }, "NEST ", h("i", { text: "CALL" })));
+
 function loginView() {
   const err = h("div", { class: "err", hidden: true, role: "alert" });
   const email = h("input", { type: "email", autocomplete: "username", required: true });
@@ -32,13 +36,13 @@ function loginView() {
     if (r && r.error) { err.textContent = r.error; err.hidden = false; btn.disabled = false; btn.textContent = "Sign in"; }
   } },
     err, h("label", { text: "Email" }), email, h("label", { text: "Password" }), pass, btn);
-  return h("div", { class: "login" }, h("h1", { text: "Nest Call" }),
+  return h("div", { class: "login" }, brandBlock(),
     h("p", { class: "muted", style: "text-align:center", text: "Sign in to receive table calls on this PC." }),
     h("div", { class: "card" }, form));
 }
 
 function messageView(title, text) {
-  return h("div", { class: "login" }, h("h1", { text: "Nest Call" }),
+  return h("div", { class: "login" }, brandBlock(),
     h("div", { class: "card" }, h("h2", { text: title }), h("p", { class: "muted", text }),
       h("button", { text: "Sign out", onclick: () => nc.logout() })));
 }
@@ -85,7 +89,7 @@ function dashboardView(s) {
 
   const pending = s.calls.filter((c) => !c.test);
   return h("div", { class: "wrap" },
-    h("header", { class: "top" }, h("h1", { text: "Nest Call" }),
+    h("header", { class: "top" }, brandMark(),
       h("span", { class: "pill " + (s.connected ? "ok" : "bad"), text: s.connected ? "Connected" : "Offline" })),
     s.connected ? null : h("div", { class: "banner", text: "Not connected - new calls may not appear. Check this PC's internet connection." }),
     h("div", { class: "card" }, h("h2", { text: "Calls waiting" }),

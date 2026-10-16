@@ -76,6 +76,7 @@ function render() {
   const shown = calls.slice(0, MAX_SHOWN);
   app.replaceChildren(
     h("div", { class: "head" },
+      h("img", { src: "logo.png", alt: "", width: "24", height: "24" }),
       h("h1", { text: calls.length === 1 ? "Call waiting" : `${calls.length} calls waiting` }),
       h("button", { text: "Hide", title: "Hide for now - it will remind you", onclick: () => nc.hideAlert() })),
     connected ? null : h("div", { class: "offline", text: "Connection lost - new calls may not appear." }),
