@@ -35,7 +35,8 @@ function loginView() {
     const r = await nc.login(email.value, pass.value);
     if (r && r.error) { err.textContent = r.error; err.hidden = false; btn.disabled = false; btn.textContent = "Sign in"; }
   } },
-    err, h("label", { text: "Email" }), email, h("label", { text: "Password" }), pass, btn);
+    err, h("label", { text: "Email" }), email, h("label", { text: "Password" }), pass, btn,
+    h("p", { style: "text-align:center;margin:12px 0 0" }, h("a", { href: "#", class: "muted", text: "Forgot your password?", onclick: (e) => { e.preventDefault(); nc.resetPassword(); } })));
   return h("div", { class: "login" }, brandBlock(),
     h("p", { class: "muted", style: "text-align:center", text: "Sign in to receive table calls on this PC." }),
     h("div", { class: "card" }, form));

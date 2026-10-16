@@ -4,7 +4,7 @@
 // Renderers never talk to Supabase directly; they only use the IPC API in preload.js.
 
 const {
-  app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, safeStorage, Notification, screen,
+  app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, safeStorage, Notification, screen, shell,
 } = require("electron");
 const path = require("path");
 const fs = require("fs");
@@ -373,6 +373,7 @@ ipcMain.handle("auth:login", async (_e, { email, password }) => {
   await onSignedIn(data.user, data.session && data.session.access_token);
   return { ok: true };
 });
+ipcMain.handle("auth:reset", () => { shell.openExternal("https://app.nest-call.co.uk/?reset=1"); return { ok: true }; });
 ipcMain.handle("auth:logout", () => signOut());
 
 ipcMain.handle("call:accept", async (_e, id) => {

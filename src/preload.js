@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld("nc", {
 
   login: (email, password) => invoke("auth:login", { email, password }),
   logout: () => invoke("auth:logout"),
+  resetPassword: () => invoke("auth:reset"),
 
   accept: (id) => invoke("call:accept", id),
   falseAlarm: (id, mode, block) => invoke("call:false-alarm", { id, mode, block }),
