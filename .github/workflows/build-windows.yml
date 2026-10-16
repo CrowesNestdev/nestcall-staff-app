@@ -17,7 +17,30 @@ jobs:
         with:
           node-version: 20
       - run: npm install
-      - run: npm run dist
+      # Signed build when Azure Trusted Signing is configured (repository secrets AZURE_* and variables AZ_*),
+      # otherwise an unsigned build, exactly as before.
+      - name: Build installer
+        shell: bash
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZ_PUBLISHER: ${{ vars.AZ_PUBLISHER }}
+          AZ_ENDPOINT: ${{ vars.AZ_ENDPOINT }}
+          AZ_ACCOUNT: ${{ vars.AZ_ACCOUNT }}
+          AZ_PROFILE: ${{ vars.AZ_PROFILE }}
+        run: |
+          if [ -n "$AZURE_CLIENT_ID" ] && [ -n "$AZ_ACCOUNT" ]; then
+            echo "Building a SIGNED installer"
+            npx electron-builder --win nsis --publish never \
+              -c.win.azureSignOptions.publisherName="$AZ_PUBLISHER" \
+              -c.win.azureSignOptions.endpoint="$AZ_ENDPOINT" \
+              -c.win.azureSignOptions.codeSigningAccountName="$AZ_ACCOUNT" \
+              -c.win.azureSignOptions.certificateProfileName="$AZ_PROFILE"
+          else
+            echo "Building an UNSIGNED installer (no signing secrets set)"
+            npm run dist
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: NestCall-Setup
