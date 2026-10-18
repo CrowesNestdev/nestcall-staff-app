@@ -7,6 +7,7 @@ const {
   app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, safeStorage, Notification, screen, shell,
 } = require("electron");
 const path = require("path");
+const os = require("os");
 const fs = require("fs");
 const WebSocket = require("ws");
 const { createClient } = require("@supabase/supabase-js");
@@ -25,7 +26,9 @@ const rendererFile = (f) => path.join(__dirname, "renderer", f);
 const trayImg = (f) => nativeImage.createFromPath(rendererFile(f)).resize({ width: 32, height: 32 });
 
 // ------------------------------------------------------------------ settings
-let settings = { siteIds: [], sound: true, realertSeconds: 60 };
+let settings = { siteIds: [], sound: true, realertSeconds: 60, deviceName: "" };
+// The name shown in reports ("answered on Desk 1"). Falls back to the PC name until someone sets one.
+const deviceName = () => (String(settings.deviceName || "").trim() || os.hostname() || "Unnamed").slice(0, 40);
 const settingsFile = () => path.join(app.getPath("userData"), "settings.json");
 
 function loadSettings() {
@@ -94,7 +97,7 @@ function publicCalls() {
 function snapshot() {
   return {
     signedIn: !!user, email: user ? user.email : null, noAccess, needsSites: needsSites(),
-    sites, siteIds: settings.siteIds, connected, calls: publicCalls(), tables, settings,
+    sites, siteIds: settings.siteIds, connected, calls: publicCalls(), tables, settings, deviceDefault: os.hostname() || "",
     version: app.getVersion(),
   };
 }
@@ -378,7 +381,7 @@ ipcMain.handle("auth:logout", () => signOut());
 
 ipcMain.handle("call:accept", async (_e, id) => {
   if (testCalls.has(id)) { testCalls.delete(id); alertedAt.delete(id); refreshAlert(); return { ok: true }; }
-  const { error } = await supabase.rpc("accept_call", { _call: id });
+  const { error } = await supabase.rpc("accept_call", { _call: id, _device: deviceName() });
   if (error && !isHandledError(error)) return { error: error.message };
   calls.delete(id); alertedAt.delete(id); refreshAlert();
   return { ok: true, already: !!error };
@@ -428,6 +431,7 @@ ipcMain.handle("sites:set", async (_e, ids) => {
 ipcMain.handle("settings:set", (_e, patch) => {
   if (typeof patch.sound === "boolean") settings.sound = patch.sound;
   if ([30, 60, 120, 300].includes(Number(patch.realertSeconds))) settings.realertSeconds = Number(patch.realertSeconds);
+  if (typeof patch.deviceName === "string") settings.deviceName = patch.deviceName.replace(/[\u0000-\u001F\u007F]/g, " ").trim().slice(0, 40);
   saveSettings(); emitState();
   return { ok: true };
 });

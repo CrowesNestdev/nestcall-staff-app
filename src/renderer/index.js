@@ -21,7 +21,7 @@ const disabledText = (t) => t.disabled_until === "infinity" ? "Disabled until tu
   : "Disabled until " + new Date(t.disabled_until).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" });
 
 // ----------------------------------------------------------------- views
-const brandBlock = () => h("div", { class: "brand-big" }, h("img", { class: "brand-full", src: "logo-full.png", alt: "Nest Call", width: "120", height: "169" }));
+const brandBlock = () => h("div", { class: "brand-big" }, h("img", { class: "brand-full", src: "logo-full.png", alt: "Nest Call", width: "92", height: "129" }));
 const brandMark = () => h("div", { class: "mark" }, h("img", { src: "logo.png", alt: "", width: "34", height: "34" }),
   h("span", { class: "mk-t" }, "NEST ", h("i", { text: "CALL" })));
 
@@ -102,6 +102,9 @@ function dashboardView(s) {
     h("div", { class: "card" }, h("h2", { text: "Settings" }),
       h("div", { class: "row" }, h("label", { for: "sound", text: "Play a sound for new calls" }),
         h("input", { id: "sound", type: "checkbox", checked: !!s.settings.sound, onchange: (e) => nc.setSettings({ sound: e.target.checked }) })),
+      h("div", { class: "row" }, h("label", { for: "devname", text: "Name of this app (shown in reports)" }),
+        h("input", { id: "devname", type: "text", maxlength: "40", value: s.settings.deviceName || "", placeholder: s.deviceDefault || "e.g. Desk 1", style: "max-width:200px;margin:0",
+          onchange: (e) => nc.setSettings({ deviceName: e.target.value }) })),
       h("div", { class: "row" }, h("label", { for: "realert", text: "Remind me about unanswered calls every" }),
         h("select", { id: "realert", onchange: (e) => nc.setSettings({ realertSeconds: Number(e.target.value) }) },
           ...[[30, "30 seconds"], [60, "1 minute"], [120, "2 minutes"], [300, "5 minutes"]].map(([v, l]) =>
@@ -109,7 +112,7 @@ function dashboardView(s) {
       h("div", { class: "actions" },
         s.sites.length > 1 ? h("button", { text: "Change sites…", onclick: () => { changingSites = true; render(true); } }) : null,
         h("button", { text: "Sign out", onclick: () => nc.logout() }))),
-    h("p", { class: "muted", style: "text-align:center", text: `Signed in as ${s.email} · v${s.version}. Nest Call always runs in the background and starts with Windows. Closing this window keeps it running; to remove it, uninstall it.` }));
+    h("p", { class: "muted", style: "text-align:center", text: `Signed in as ${s.email} · ${s.settings.deviceName || s.deviceDefault || "this PC"} · v${s.version}. Nest Call always runs in the background and starts with Windows. Closing this window keeps it running; to remove it, uninstall it.` }));
 }
 
 // ---------------------------------------------------------------- render
